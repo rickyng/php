@@ -25,20 +25,19 @@ class Product{
 			$array[] = $key. " = '". $checked_value."'";
 		}
 		$comma_separated = implode(",", $array);
-		echo $id ."<br>";
-		
+
 
         //write query
 	
 		$query = "INSERT INTO " . $this->table_name . " SET " . $comma_separated ;
-	
+		
         $stmt = $this->conn->prepare($query);
  
     
         if($stmt->execute()){
             return true;
         }else{
-			echo $stmt->error;
+			
             return false;
         }
  
@@ -129,12 +128,12 @@ class Product{
 	
 	// delete the product
 	function delete($id){
-	 
-		$query = "DELETE FROM " . $this->table_name . " WHERE id = ?";
+
+		
+		$query = "DELETE FROM " . $this->table_name . " WHERE seq = ?";
 		 
 		$stmt = $this->conn->prepare($query);
 		$stmt->bindParam(1, $id);
-	 
 		if($result = $stmt->execute()){
 			return true;
 		}else{

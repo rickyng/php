@@ -27,15 +27,14 @@ echo "</div>";
 if($_POST){
  
     // set product property values
-    $product->name = $_POST['name'];
-    $product->price = $_POST['price'];
-    $product->description = $_POST['description'];
-    $product->category_id = $_POST['category_id'];
-	$image=!empty($_FILES["image"]["name"])
-        ? sha1_file($_FILES['image']['tmp_name']) . "-" . basename($_FILES["image"]["name"]) : "";
-		$product->image = $image;
+	$request = array();
+	foreach ($master2_column as $key )
+	{
+		$request[$key] = $_POST[$key];
+	}
+	
     // create the product
-    if($product->create()){
+    if($product->create($request)){
         echo "<div class='alert alert-success'>Product was created.</div>";
 		// try to upload the submitted file
 		// uploadPhoto() method will return an error message, if any.
