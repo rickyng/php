@@ -10,7 +10,7 @@ $database = new Database();
 $db = $database->getConnection();
  
 // pass connection to objects
-$product = new Product($db, 'master2', $master2_column);
+$product = new Product($db);
 $category = new Category($db);
 
 // set page headers
@@ -28,7 +28,7 @@ if($_POST){
  
     // set product property values
 	$request = array();
-	foreach ($master2_column as $key )
+	foreach ($product->get_edit_column() as $key )
 	{
 		$request[$key] = $_POST[$key];
 	}
@@ -38,7 +38,7 @@ if($_POST){
         echo "<div class='alert alert-success'>Product was created.</div>";
 		// try to upload the submitted file
 		// uploadPhoto() method will return an error message, if any.
-		echo $product->uploadPhoto();
+		//echo $product->uploadPhoto();
     }
  
     // if unable to create the product, tell the user
@@ -53,13 +53,13 @@ if($_POST){
  
     <table class='table table-hover table-responsive table-bordered'>
 	<?php
-		foreach ($master2_column as $element)
-		{
-			echo "<tr>";
-            echo "<td>{$element}</td>";
-            echo "<td><input type='text' name='{$element}' class='form-control' /></td>";
-			echo "</tr>";
-
+		foreach ($product->get_all_column() as $element) {
+            if ($element != $product->get_primary_key()) {
+                echo "<tr>";
+                echo "<td>{$element}</td>";
+                echo "<td><input type='text' name='{$element}' class='form-control' /></td>";
+                echo "</tr>";    
+            }
 		}
 		?>
         <tr>

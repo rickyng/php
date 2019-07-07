@@ -12,7 +12,7 @@ if($_POST){
     $db = $database->getConnection();
 
     // prepare product object
-    $product = new Product($db, 'master2', $master2_column);
+    $product = new Product($db);
       
     // delete the product
     if($product->delete($_POST['object_id'])){

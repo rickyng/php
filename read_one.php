@@ -14,7 +14,7 @@ $database = new Database();
 $db = $database->getConnection();
  
 // prepare objects
-$product = new Product($db, 'master2', $master2_column);
+$product = new Product($db);
 $category = new Category($db);
  
 // set ID property of product to be read

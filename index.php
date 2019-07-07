@@ -4,6 +4,7 @@ include_once 'config/core.php';
  
 // include database and object files
 include_once 'config/database.php';
+
 include_once 'objects/product.php';
 include_once 'objects/category.php';
  
@@ -11,12 +12,12 @@ include_once 'objects/category.php';
 $database = new Database();
 $db = $database->getConnection();
  
-$product = new Product($db, 'master2', $master2_column);
+$product = new Product($db);
 $category = new Category($db);
  
 $page_title = "Read Products";
 include_once "layout_header.php";
- 
+ $primary_key = $product->get_primary_key();
 // query products
 $stmt = $product->readAll($from_record_num, $records_per_page);
  

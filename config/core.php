@@ -8,5 +8,5 @@ $records_per_page = 5;
 // calculate for the query LIMIT clause
 $from_record_num = ($records_per_page * $page) - $records_per_page;
 
-$master2_column = array('seq', 'Collection' , 'Description' , 'Selling_EXW_USD_1000pc', 'Item_code_AW19', 'Item_type' );
+
 ?>

@@ -33,24 +33,27 @@ if($total_rows>0){
             extract($row);	
 			
             echo "<tr>";
-				foreach ( $row as $entry )
-					echo "<td>{$entry}</td>";
-                
+                foreach ( $row as $key => $value )
+                {
+                    if ($key == $primary_key)
+                        $id = $value;
+					echo "<td>{$value}</td>";
+                }
  
                 echo "<td>";
- 
+
                     // read product button
-                    echo "<a href='read_one.php?id={$seq}' class='btn btn-primary left-margin'>";
+                    echo "<a href='read_one.php?id={$id}' class='btn btn-primary left-margin'>";
                         echo "<span class='glyphicon glyphicon-list'></span> Read";
                     echo "</a>";
  
                     // edit product button
-                    echo "<a href='update_product.php?id={$seq}' class='btn btn-info left-margin'>";
+                    echo "<a href='update_product.php?id={$id}' class='btn btn-info left-margin'>";
                         echo "<span class='glyphicon glyphicon-edit'></span> Edit";
                     echo "</a>";
  
                     // delete product button
-                    echo "<a delete-id='{$seq}' class='btn btn-danger delete-object'>";
+                    echo "<a delete-id='{$id}' class='btn btn-danger delete-object'>";
                         echo "<span class='glyphicon glyphicon-remove'></span> Delete";
                     echo "</a>";
  

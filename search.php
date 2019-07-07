@@ -17,7 +17,6 @@ $category = new Category($db);
  
 // get search term
 $search_term=isset($_GET['s']) ? $_GET['s'] : '';
-echo $search_term."<br>";
  
 $page_title = "You searched for \"{$search_term}\"";
 include_once "layout_header.php";

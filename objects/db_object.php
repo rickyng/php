@@ -1,64 +1,84 @@
 <?php
-class Object{
+
+
+class db_object{
  
     // database connection and table name
     private $conn;
-    private $table_name = "master2";
- 
-    // object properties
-    public $id;
-    public $name;
-    public $price;
-    public $description;
-    public $category_id;
-    public $timestamp;
- 
-    public function __construct($db){
-        $this->conn = $db;
-    }
 	
-	// create product
+	private $table_name;
+	public $primary_key;
+	public $table_column;
+	public $edit_column;
+    
+    // object properties
+    public function __construct($db, $name){
+		$this->conn = $db;
+		$this->table_name = $name;
+	}
+	
+	public function get_primary_key() {
+		return $this->primary_key;
+	}
+
+	public function get_all_column(){	
+		return $this->table_column;
+	}
+
+	public function get_edit_column(){
+		return $this->edit_column;
+	}
+	
+	public function set_primary_key($primary_key) {
+		$this->primary_key = $primary_key;
+	}
+
+	public function set_all_column($all_column){	
+		$this->table_column = $all_column;
+	}
+
+	public function set_edit_column($edit_column){
+		$this->edit_column = $edit_column;
+	}
 	/*
-    function create(){
- 
+	public function get_update_column(){
+		return $this->table_column;
+	}
+	*/
+	
+	// create db_object
+    public function create($request){
+		$array = array();
+		foreach ($request as $key => $value)
+		{
+			$checked_value = htmlspecialchars(strip_tags($value));
+			$array[] = $key. " = '". $checked_value."'";
+		}
+		$comma_separated = implode(",", $array);
+
+
         //write query
 	
-		$query = "INSERT INTO " . $this->table_name . "
-            SET name=:name, price=:price, description=:description,
-                category_id=:category_id, image=:image, created=:created";
+		$query = "INSERT INTO " . $this->table_name . " SET " . $comma_separated ;
 		
         $stmt = $this->conn->prepare($query);
  
-        // posted values
-        $this->name=htmlspecialchars(strip_tags($this->name));
-        $this->price=htmlspecialchars(strip_tags($this->price));
-        $this->description=htmlspecialchars(strip_tags($this->description));
-        $this->category_id=htmlspecialchars(strip_tags($this->category_id));
-		$this->image=htmlspecialchars(strip_tags($this->image));
-		
-        // to get time-stamp for 'created' field
-        $this->timestamp = date('Y-m-d H:i:s');
- 
-        // bind values 
-        $stmt->bindParam(":name", $this->name);
-        $stmt->bindParam(":price", $this->price);
-        $stmt->bindParam(":description", $this->description);
-        $stmt->bindParam(":category_id", $this->category_id);
-        $stmt->bindParam(":created", $this->timestamp);
-		$stmt->bindParam(":image", $this->image);
- 
+    
         if($stmt->execute()){
             return true;
         }else{
+			
             return false;
         }
  
     }
-	*/
 
-	function readAll($fields, $order_by, $from_record_num, $records_per_page){
+
+	public function readAll($from_record_num, $records_per_page){
+		
 		$order_by = 'Collection';
-		$comma_separated = implode(",", $fields);
+
+		$comma_separated = implode(",", $this->get_all_column());
 
 		$items = array();
 		$query = "SELECT " . $comma_separated. " FROM " . $this->table_name . 
@@ -68,18 +88,21 @@ class Object{
 		$stmt->execute();
 		while ($row = $stmt->fetch(PDO::FETCH_ASSOC)){
 			$local = array();
-			foreach ($array as $element)
+			foreach ($this->get_all_column() as $element)
 				$local[$element]  = $row[$element];
-			$items[] = $local;	
+			$items[] = $local;
+				
 		}
+				
+	 
 		return $items;
 	}
 	
-	// used for paging products
+	// used for paging db_objects
 	public function countAll(){
 	 
 		$query = "SELECT seq  FROM " . $this->table_name . "";
-	 
+ 
 		$stmt = $this->conn->prepare( $query );
 		$stmt->execute();
 	 
@@ -88,71 +111,58 @@ class Object{
 		return $num;
 	}
 	
-	function readOne(){
-	 
-		$query = "SELECT Collection , Description , Selling_EXW_USD_1000pc, Item_code_AW19
-			FROM " . $this->table_name . "
-			WHERE seq = ?
-			LIMIT 0,1";
-	 
+	public function readOne($id){
+		
+		$comma_separated = implode(",", $this->get_edit_column());
+
+		$query = "SELECT ". $comma_separated . " FROM " . $this->table_name . 
+			" WHERE seq = ? LIMIT 0,1";
+		
 		$stmt = $this->conn->prepare( $query );
-		$stmt->bindParam(1, $this->id);
+		$stmt->bindParam(1, $id);
 		$stmt->execute();
 	 
 		$row = $stmt->fetch(PDO::FETCH_ASSOC);
-	 
-		$this->name = $row['Collection'];
-		$this->price = $row['Selling_EXW_USD_1000pc'];
-		$this->description = $row['Description'];
-		$this->category_id = $row['Item_code_AW19'];
-
+		$result = array();
+		foreach ($this->get_edit_column() as $element) {
+			$result[$element] = $row[$element];
+		}
+		return $result;
 	}
 	
-	function update(){
- 
-		$query = "UPDATE
-					" . $this->table_name . "
-				SET
-					name = :name,
-					price = :price,
-					description = :description,
-					category_id  = :category_id
-				WHERE
-					id = :id";
-	 
+	public function update($id, $request){
+		$array = array();
+		foreach ($request as $key => $value)
+		{
+			$checked_value = htmlspecialchars(strip_tags($value));
+			$array[] = $key. " = '". $checked_value."'";
+		}
+		$comma_separated = implode(",", $array);
+
+		
+		$query = "UPDATE " . $this->table_name . " SET ". $comma_separated. 
+				" WHERE seq = ". $id;
+
 		$stmt = $this->conn->prepare($query);
 	 
-		// posted values
-		$this->name=htmlspecialchars(strip_tags($this->name));
-		$this->price=htmlspecialchars(strip_tags($this->price));
-		$this->description=htmlspecialchars(strip_tags($this->description));
-		$this->category_id=htmlspecialchars(strip_tags($this->category_id));
-		$this->id=htmlspecialchars(strip_tags($this->id));
-	 
-		// bind parameters
-		$stmt->bindParam(':name', $this->name);
-		$stmt->bindParam(':price', $this->price);
-		$stmt->bindParam(':description', $this->description);
-		$stmt->bindParam(':category_id', $this->category_id);
-		$stmt->bindParam(':id', $this->id);
-	 
+		
 		// execute the query
 		if($stmt->execute()){
 			return true;
 		}
-	 
+		//echo 'Error occurred:'.implode(":",$this->conn->errorInfo());
 		return false;
 		 
 	}
 	
-	// delete the product
-	function delete(){
-	 
-		$query = "DELETE FROM " . $this->table_name . " WHERE id = ?";
+	// delete the db_object
+	public function delete($id){
+
+		
+		$query = "DELETE FROM " . $this->table_name . " WHERE seq = ?";
 		 
 		$stmt = $this->conn->prepare($query);
-		$stmt->bindParam(1, $this->id);
-	 
+		$stmt->bindParam(1, $id);
 		if($result = $stmt->execute()){
 			return true;
 		}else{
@@ -160,65 +170,63 @@ class Object{
 		}
 	}
 	
-	// read products by search term
+	// read db_objects by search term
 	public function search($search_term, $from_record_num, $records_per_page){
 	 
-		// select query
-		$query = "SELECT
-					c.name as category_name, p.id, p.name, p.description, p.price, p.category_id, p.created
-				FROM
-					" . $this->table_name . " p
-					LEFT JOIN
-						categories c
-							ON p.category_id = c.id
-				WHERE
-					p.name LIKE ? OR p.description LIKE ?
-				ORDER BY
-					p.name ASC
-				LIMIT
-					?, ?";
-	 
+		$order_by = 'Collection';
+		$comma_separated = implode(",", $this->table_column);
+		$where= array();
+		foreach ( $this->table_column as $key => $value)
+		{
+			$where[] = $value.  " LIKE '".  $search_term . "'";
+		}		
+		$where_clause = implode(" OR ", $where);
+		$query = "SELECT " . $comma_separated. " FROM " . $this->table_name . 
+			" WHERE " . $where_clause .
+			" ORDER BY ". $order_by. " ASC LIMIT {$from_record_num}, {$records_per_page}";
+		
 		// prepare query statement
 		$stmt = $this->conn->prepare( $query );
 	 
-		// bind variable values
-		$search_term = "%{$search_term}%";
-		$stmt->bindParam(1, $search_term);
-		$stmt->bindParam(2, $search_term);
-		$stmt->bindParam(3, $from_record_num, PDO::PARAM_INT);
-		$stmt->bindParam(4, $records_per_page, PDO::PARAM_INT);
-	 
 		// execute query
-		$stmt->execute();
-	 
-		// return values from database
-		return $stmt;
+		if(!$stmt->execute())
+			$this->conn->error;
+		
+		$items = array();
+		while ($row = $stmt->fetch(PDO::FETCH_ASSOC)){
+			$local = array();
+			foreach ($this->table_column as $element)
+				$local[$element]  = $row[$element];
+			$items[] = $local;
+				
+		}
+		
+		return $items;
 	}
 	 
 	public function countAll_BySearch($search_term){
 	 
-		// select query
-		$query = "SELECT
-					COUNT(*) as total_rows
-				FROM
-					" . $this->table_name . " p
-					LEFT JOIN
-						categories c
-							ON p.category_id = c.id
-				WHERE
-					p.name LIKE ?";
-	 
+		$order_by = 'Collection';
+		$comma_separated = implode(",", $this->table_column);
+		$where= array();
+		foreach ($this->table_column as $key => $value)
+		{
+			$where[] = $value.  " LIKE '".  $search_term . "'";
+		}		
+		$where_clause = implode(" OR ", $where);
+		$query = "SELECT " . $comma_separated. " FROM " . $this->table_name . 
+			" WHERE " . $where_clause .
+			" ORDER BY ". $order_by;
+		
 		// prepare query statement
 		$stmt = $this->conn->prepare( $query );
 	 
-		// bind variable values
-		$search_term = "%{$search_term}%";
-		$stmt->bindParam(1, $search_term);
-	 
-		$stmt->execute();
-		$row = $stmt->fetch(PDO::FETCH_ASSOC);
-	 
-		return $row['total_rows'];
+		// execute query
+		if(!$stmt->execute()) 
+			echo $this->conn->error;
+		
+		
+		return $stmt->rowCount();
 	}
 	
 	// will upload image file to server

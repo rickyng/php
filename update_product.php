@@ -13,7 +13,7 @@ $database = new Database();
 $db = $database->getConnection();
  
 // prepare objects
-$product = new Product($db, 'master2',$master2_column);
+$product = new Product($db);
 $category = new Category($db);
  
 // read the details of product to be edited
@@ -33,16 +33,15 @@ echo "</div>";
 // if the form was submitted
 if($_POST){
 	$changed = array();
-	foreach ($result as $key => $value)
-	{
-		if ($value !=  $_POST[$key])
-		{
-			echo  "from ". $value." to ". $_POST[$key]."<br>";
+	foreach ($result as $key => $value) {
+		if ( $value !=  $_POST[$key]) {
 			$changed[$key] = $_POST[$key];
 			$result[$key] = $_POST[$key];
 		}
-		
+
 	}
+
+
     
     // update the product
     if($product->update($id, $changed)){
