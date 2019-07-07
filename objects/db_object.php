@@ -119,7 +119,7 @@ class db_object{
 
 		$query = "SELECT ". $comma_separated . " FROM " . $this->table_name . 
 			" WHERE ". $this->get_primary_key(). " = ? LIMIT 0,1";
-		echo $query ."<br>";
+		
 		$stmt = $this->conn->prepare( $query );
 		$stmt->bindParam(1, $id);
 		$stmt->execute();

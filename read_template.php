@@ -38,8 +38,7 @@ echo "<table class='table table-hover table-responsive table-bordered'>";
                 foreach ( $row as $key => $value )
                 {
                     if ($key == $primary_key) {
-                        $id = $value;
-                        echo 'id is'. $value. "<br>";        
+                        $id = $value;     
                     }
                         
 					echo "<td>{$value}</td>";

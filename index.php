@@ -17,18 +17,19 @@ $category = new Category($db);
  
 $page_title = "Read Products";
 include_once "layout_header.php";
- $primary_key = $category->get_primary_key();
-// $primary_key = $product->get_primary_key();
+ //$primary_key = $category->get_primary_key();
+$primary_key = $product->get_primary_key();
 // query products
-$stmt = $category->readAll($from_record_num, $records_per_page);
-//$stmt = $product->readAll($from_record_num, $records_per_page);
-$header = $category->get_all_column();
+//$stmt = $category->readAll($from_record_num, $records_per_page);
+$stmt = $product->readAll($from_record_num, $records_per_page);
+//$header = $category->get_all_column();
+$header = $product->get_all_column();
 // specify the page where paging is used
 $page_url = "index.php?";
  
 // count total rows - used for pagination
-$total_rows=$category->countAll();
-//$total_rows=$product->countAll();
+//$total_rows=$category->countAll();
+$total_rows=$product->countAll();
 // read_template.php controls how the product list will be rendered
 include_once "read_template.php";
  
