@@ -18,16 +18,18 @@ echo "<div class='right-button-margin'>";
 echo "</div>";
  
 // display the products if there are any
-if($total_rows>0){
- 
-    echo "<table class='table table-hover table-responsive table-bordered'>";
-		$header = $stmt[0];
-        echo "<tr>";
-			foreach ( $header as $key => $value )
-				echo "<td>{$key}</td>";               
-            echo "<th>Actions</th>";
-        echo "</tr>";
- 
+echo $total_rows. '<br>';
+
+echo "<table class='table table-hover table-responsive table-bordered'>";
+
+    
+    echo "<tr>";
+        foreach ( $header as $key )
+            echo "<th>{$key}</th>";               
+        echo "<th>Actions</th>";
+    echo "</tr>";
+
+    if($total_rows>0){
         foreach ( $stmt as $row){
             
             extract($row);	
@@ -35,8 +37,11 @@ if($total_rows>0){
             echo "<tr>";
                 foreach ( $row as $key => $value )
                 {
-                    if ($key == $primary_key)
+                    if ($key == $primary_key) {
                         $id = $value;
+                        echo 'id is'. $value. "<br>";        
+                    }
+                        
 					echo "<td>{$value}</td>";
                 }
  
@@ -63,7 +68,7 @@ if($total_rows>0){
  
         }
  
-    echo "</table>";
+echo "</table>";
  
     // paging buttons
     include_once 'paging.php';

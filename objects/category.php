@@ -1,47 +1,34 @@
 <?php
-class Category{
- 
-    // database connection and table name
-    private $conn;
-    private $table_name = "awb2";
- 
+include_once('db_object.php');
+
+class Category extends db_object{
+
     // object properties
-    public $id;
-    public $name;
- 
     public function __construct($db){
-        $this->conn = $db;
-    }
- 
-    // used by select drop-down list
-    function read(){
-        //select all data
-        $query = "SELECT
-                    id, name
-                FROM
-                    " . $this->table_name . "
-                ORDER BY
-                    name";  
- 
-        $stmt = $this->conn->prepare( $query );
-        $stmt->execute();
- 
-        return $stmt;
+		// all column in table
+		$all_column = array('seq_awb',
+			'seq_master', 
+			'collection' , 
+			'description' , 
+			'item_code', 
+			'time', 
+			'sub_time',
+			'awb_no',
+			'status');
+		// editable column, used for update/ create
+		$editable_column = array( 'seq_master', 
+			'collection' , 
+			'description' , 
+			'item_code', 
+			'time', 
+			'sub_time',
+			'awb_no',
+			'status' );
+		parent::__construct($db, 'awb2');
+		parent::set_primary_key('seq_awb');
+		parent::set_all_column($all_column);
+		parent::set_edit_column($editable_column);
     }
 	
-	// used to read category name by its ID
-	function readName(){
-     
-		$query = "SELECT name FROM " . $this->table_name . " WHERE seq = ? limit 0,1";
-	 
-		$stmt = $this->conn->prepare( $query );
-		$stmt->bindParam(1, $this->id);
-		$stmt->execute();
-	 
-		$row = $stmt->fetch(PDO::FETCH_ASSOC);
-		 
-		$this->name = $row['name'];
-	}
- 
 }
 ?>

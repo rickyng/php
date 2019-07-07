@@ -76,22 +76,24 @@ class db_object{
 
 	public function readAll($from_record_num, $records_per_page){
 		
-		$order_by = 'Collection';
+		
 
 		$comma_separated = implode(",", $this->get_all_column());
 
 		$items = array();
 		$query = "SELECT " . $comma_separated. " FROM " . $this->table_name . 
-			" ORDER BY ". $order_by. " ASC LIMIT {$from_record_num}, {$records_per_page}";
-	 
+			" ORDER BY ". $this->get_primary_key() . " ASC LIMIT {$from_record_num}, {$records_per_page}";
 		$stmt = $this->conn->prepare( $query );
 		$stmt->execute();
 		while ($row = $stmt->fetch(PDO::FETCH_ASSOC)){
 			$local = array();
-			foreach ($this->get_all_column() as $element)
+			foreach ($this->get_all_column() as $element) {
 				$local[$element]  = $row[$element];
-			$items[] = $local;
 				
+			}
+
+			$items[] = $local;
+			
 		}
 				
 	 
@@ -101,7 +103,7 @@ class db_object{
 	// used for paging db_objects
 	public function countAll(){
 	 
-		$query = "SELECT seq  FROM " . $this->table_name . "";
+		$query = "SELECT ". $this->primary_key. "  FROM " . $this->table_name . "";
  
 		$stmt = $this->conn->prepare( $query );
 		$stmt->execute();
@@ -116,8 +118,8 @@ class db_object{
 		$comma_separated = implode(",", $this->get_edit_column());
 
 		$query = "SELECT ". $comma_separated . " FROM " . $this->table_name . 
-			" WHERE seq = ? LIMIT 0,1";
-		
+			" WHERE ". $this->get_primary_key(). " = ? LIMIT 0,1";
+		echo $query ."<br>";
 		$stmt = $this->conn->prepare( $query );
 		$stmt->bindParam(1, $id);
 		$stmt->execute();
@@ -141,7 +143,7 @@ class db_object{
 
 		
 		$query = "UPDATE " . $this->table_name . " SET ". $comma_separated. 
-				" WHERE seq = ". $id;
+				" WHERE ". $this->primary_key. " = ". $id;
 
 		$stmt = $this->conn->prepare($query);
 	 
@@ -159,7 +161,7 @@ class db_object{
 	public function delete($id){
 
 		
-		$query = "DELETE FROM " . $this->table_name . " WHERE seq = ?";
+		$query = "DELETE FROM " . $this->table_name . " WHERE ". $this->primary_key. " = ?";
 		 
 		$stmt = $this->conn->prepare($query);
 		$stmt->bindParam(1, $id);

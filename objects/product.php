@@ -1,5 +1,5 @@
 <?php
-include('db_object.php');
+include_once('db_object.php');
 
 class Product extends db_object{
 
