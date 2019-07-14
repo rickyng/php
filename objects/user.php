@@ -30,6 +30,21 @@ class User extends db_object{
 		parent::set_all_column($all_column);
 		parent::set_edit_column($editable_column);
     }
-	
+
+    // check if given email exist in the database
+      function emailExists($email){
+            $search = array();
+            $search['email'] = $email;
+            $result = parent::search($search, 0 , 5);
+           
+            if (sizeof($result) > 0 ){
+                  return true;
+            }
+            
+            // return false if email does not exist in the database
+            return false;
+      }
+
+
 }
 ?>

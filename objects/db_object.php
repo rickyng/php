@@ -170,19 +170,18 @@ class db_object{
 	}
 	
 	// read db_objects by search term
-	public function search($search_term, $from_record_num, $records_per_page){
+	public function search( $search_term, $from_record_num, $records_per_page){
 	 
-		$order_by = 'Collection';
 		$comma_separated = implode(",", $this->table_column);
 		$where= array();
-		foreach ( $this->table_column as $key => $value)
+		foreach ( $search_term as $key => $value)
 		{
-			$where[] = $value.  " LIKE '".  $search_term . "'";
+			$where[] = $key.  " LIKE '".  $value . "'";
 		}		
 		$where_clause = implode(" OR ", $where);
 		$query = "SELECT " . $comma_separated. " FROM " . $this->table_name . 
 			" WHERE " . $where_clause .
-			" ORDER BY ". $order_by. " ASC LIMIT {$from_record_num}, {$records_per_page}";
+			" ORDER BY ". $this->get_primary_key(). " ASC LIMIT {$from_record_num}, {$records_per_page}";
 		
 		// prepare query statement
 		$stmt = $this->conn->prepare( $query );
