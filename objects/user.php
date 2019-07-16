@@ -45,6 +45,22 @@ class User extends db_object{
             return false;
       }
 
+      // used in forgot password feature
+      function updateAccessCode($email, $access_code){
+            $search = array();
+            $search['email'] = $email;
+            $result = parent::search($search, 0 , 5);
+            if (sizeof($result) > 0){
+                  
+                  $id = $result[0]['id'];
+                  $request = array();
+                  $request['access_code']=$access_code;
+                  echo $id. ' '. $access_code. ' <br> ';
+                  return parent::update($id, $request);
+            }
+            
+            return false;
+      }
 
 }
 ?>

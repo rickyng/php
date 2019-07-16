@@ -54,7 +54,7 @@
                     </li>
                 
                     <li <?php echo $page_title=="Register" ? "class='active'" : ""; ?>>
-                        <a href="<?php echo $home_url; ?>register">
+                        <a href="<?php echo $home_url; ?>register.php">
                             <span class="glyphicon glyphicon-check"></span> Register
                         </a>
                     </li>

@@ -40,11 +40,7 @@ class db_object{
 	public function set_edit_column($edit_column){
 		$this->edit_column = $edit_column;
 	}
-	/*
-	public function get_update_column(){
-		return $this->table_column;
-	}
-	*/
+
 	
 	// create db_object
     public function create($request){
@@ -53,6 +49,7 @@ class db_object{
 		{
 			$checked_value = htmlspecialchars(strip_tags($value));
 			$array[] = $key. " = '". $checked_value."'";
+			echo $key. " = '". $checked_value."'<br>";
 		}
 		$comma_separated = implode(",", $array);
 
@@ -67,7 +64,7 @@ class db_object{
         if($stmt->execute()){
             return true;
         }else{
-			
+			print_r($stmt->errorInfo());
             return false;
         }
  

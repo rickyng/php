@@ -32,14 +32,16 @@ if($_POST){
     $search = array();
     $search['email'] = $_POST['email'];
     $result = $user->search($search, 0, 5);
-    foreach ($email_exists[0] as $key => $value)
-    {
-        echo $key.' : '. $value. '<br>'; 
-    }
+
     if (sizeof ($result) > 0 ){
+        foreach ($result[0] as $key => $value)
+        {
+            echo $key.' : '. $value. '<br>'; 
+        }
         $email_exists = $result[0];
         // login validation will be here
         // validate login
+
         if (password_verify($_POST['password'], $email_exists['password']) && $email_exists['status']==1){
         
             // if it is, set the session value to true
@@ -62,6 +64,7 @@ if($_POST){
         
         // if username does not exist or password is wrong
         else{
+
             $access_denied=true;
         }
 
@@ -114,6 +117,8 @@ echo "<div class='col-sm-6 col-md-4 col-md-offset-4'>";
                     echo "<input type='text' name='email' class='form-control' placeholder='Email' required autofocus />";
                     echo "<input type='password' name='password' class='form-control' placeholder='Password' required />";
                     echo "<input type='submit' class='btn btn-lg btn-primary btn-block' value='Log In' />";
+                    echo "<div class='margin-1em-zero text-align-center'><a href='{$home_url}forgot_password.php'>Forgot password?</a>
+</div>";
                 echo "</form>";
             echo "</div>";
         echo "</div>";
