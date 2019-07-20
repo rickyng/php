@@ -62,5 +62,17 @@ class User extends db_object{
             return false;
       }
 
+      // check if given access_code exist in the database
+      function accessCodeExists($access_code){
+            $search = array();
+            $search['access_code'] = $access_code;
+            $result = parent::search($search, 0 , 5);
+            return  (sizeof($result) > 0); 
+      }
+
+      // used in forgot password feature
+      function updatePassword($password){
+      }
+ 
 }
 ?>
