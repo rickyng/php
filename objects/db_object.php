@@ -72,16 +72,15 @@ class db_object{
 
 
 	public function readAll($from_record_num, $records_per_page){
-		
-		
 		$comma_separated = implode(",", $this->get_all_column());
 
-		$items = array();
+		
 		$query = "SELECT " . $comma_separated. " FROM " . $this->table_name . 
 			" ORDER BY ".$this->get_primary_key(). " ASC LIMIT {$from_record_num}, {$records_per_page}";
 	 
 		$stmt = $this->conn->prepare( $query );
 		$stmt->execute();
+		$items = array();
 		while ($row = $stmt->fetch(PDO::FETCH_ASSOC)){
 			$local = array();
 			foreach ($this->get_all_column() as $element)
@@ -107,26 +106,15 @@ class db_object{
 		return $num;
 	}
 	
-	public function readOne($id){
-		
-		$comma_separated = implode(",", $this->get_edit_column());
-
-		$query = "SELECT ". $comma_separated . " FROM " . $this->table_name . 
-			" WHERE ".$this->get_primary_key()." = ? LIMIT 0,1";
-		
-		$stmt = $this->conn->prepare( $query );
-		$stmt->bindParam(1, $id);
-		$stmt->execute();
-	 
-		$row = $stmt->fetch(PDO::FETCH_ASSOC);
-		$result = array();
-		foreach ($this->get_edit_column() as $element) {
-			$result[$element] = $row[$element];
-		}
-		return $result;
+	public function readBy($key, $value){
+		return $this->searchByOption($key. " = '". $value. "'", 0 , 0);
 	}
-	
-	public function update($id, $request){
+
+	public function readOne($id){
+		return $this->readBy($this->get_primary_key(), $id)[0];
+	}
+
+	public function update($where_clause, $request){
 		$array = array();
 		foreach ($request as $key => $value)
 		{
@@ -137,11 +125,10 @@ class db_object{
 
 		
 		$query = "UPDATE " . $this->table_name . " SET ". $comma_separated. 
-				" WHERE ".$this->get_primary_key()." = ". $id;
-
+				" WHERE ".$where_clause;
 		$stmt = $this->conn->prepare($query);
 	 
-		
+		echo $query. "<br>";
 		// execute the query
 		if($stmt->execute()){
 			return true;
@@ -152,34 +139,45 @@ class db_object{
 	}
 	
 	// delete the db_object
-	public function delete($id){
-
-		
-		$query = "DELETE FROM " . $this->table_name . " WHERE ".$this->get_primary_key()." = ?";
+	public function delete($where){		
+		$query = "DELETE FROM " . $this->table_name . " WHERE ".$where;
 		 
 		$stmt = $this->conn->prepare($query);
-		$stmt->bindParam(1, $id);
-		if($result = $stmt->execute()){
-			return true;
-		}else{
-			return false;
-		}
+		return $stmt->execute();
 	}
 	
 	// read db_objects by search term
-	public function search( $search_term, $from_record_num, $records_per_page){
-	 
-		$comma_separated = implode(",", $this->table_column);
+	public function search( $search_term, $from_record_num = 0 , $records_per_page =0 ) {
+		return $this->searchByOption($this->where_clause($search_term), $from_record_num, $records_per_page);
+	}
+	
+	public function countAll_BySearch($search_term) {
+		return sizeof($this->serach($search_term));
+	}
+
+	public function where_clause( $search_term, $option = ' = ',  $conjuction = "AND"){
 		$where= array();
 		foreach ( $search_term as $key => $value)
 		{
-			$where[] = $key.  " LIKE '".  $value . "'";
+			$where[] = $key. " " .$option ." '".  $value . "'";
 		}		
-		$where_clause = implode(" OR ", $where);
+		$where_clause = implode(" ". $conjuction. " ", $where);
+		return $where_clause;
+	}
+
+	private function searchByOption ( $where_clause, $from_record_num, $records_per_page ) {
+
+		$comma_separated = implode(",", $this->table_column);
+		$limit_by = "";
+		if (  $records_per_page != 0 )
+		{
+			$limit_by = " ASC LIMIT {$from_record_num}, {$records_per_page}";
+		}
 		$query = "SELECT " . $comma_separated. " FROM " . $this->table_name . 
-			" WHERE " . $where_clause .
-			" ORDER BY ". $this->get_primary_key(). " ASC LIMIT {$from_record_num}, {$records_per_page}";
+			" WHERE " . $where_clause.
+			" ORDER BY ". $this->get_primary_key(). $limit_by;
 		
+			
 		// prepare query statement
 		$stmt = $this->conn->prepare( $query );
 	 
@@ -198,103 +196,8 @@ class db_object{
 		
 		return $items;
 	}
-	 
-	public function countAll_BySearch($search_term){
-	 
-		$order_by = 'Collection';
-		$comma_separated = implode(",", $this->table_column);
-		$where= array();
-		foreach ($this->table_column as $key => $value)
-		{
-			$where[] = $value.  " LIKE '".  $search_term . "'";
-		}		
-		$where_clause = implode(" OR ", $where);
-		$query = "SELECT " . $comma_separated. " FROM " . $this->table_name . 
-			" WHERE " . $where_clause .
-			" ORDER BY ". $order_by;
-		
-		// prepare query statement
-		$stmt = $this->conn->prepare( $query );
-	 
-		// execute query
-		if(!$stmt->execute()) 
-			echo $this->conn->error;
-		
-		
-		return $stmt->rowCount();
-	}
+
+
 	
-	// will upload image file to server
-	function uploadPhoto(){
-	 
-		$result_message="";
-	 
-		// now, if image is not empty, try to upload the image
-		if($this->image){
-	 
-			// sha1_file() function is used to make a unique file name
-			$target_directory = "uploads/";
-			$target_file = $target_directory . $this->image;
-			$file_type = pathinfo($target_file, PATHINFO_EXTENSION);
-	 
-			// error message is empty
-			$file_upload_error_messages="";
-			
-			// make sure that file is a real image
-			$check = getimagesize($_FILES["image"]["tmp_name"]);
-			if($check!==false){
-				// submitted file is an image
-			}else{
-				$file_upload_error_messages.="<div>Submitted file is not an image.</div>";
-			}
-			 
-			// make sure certain file types are allowed
-			$allowed_file_types=array("jpg", "jpeg", "png", "gif");
-			if(!in_array($file_type, $allowed_file_types)){
-				$file_upload_error_messages.="<div>Only JPG, JPEG, PNG, GIF files are allowed.</div>";
-			}
-			 
-			// make sure file does not exist
-			if(file_exists($target_file)){
-				$file_upload_error_messages.="<div>Image already exists. Try to change file name.</div>";
-			}
-			 
-			// make sure submitted file is not too large, can't be larger than 1 MB
-			if($_FILES['image']['size'] > (1024000)){
-				$file_upload_error_messages.="<div>Image must be less than 1 MB in size.</div>";
-			}
-			 
-			// make sure the 'uploads' folder exists
-			// if not, create it
-			if(!is_dir($target_directory)){
-				mkdir($target_directory, 0777, true);
-			}
-			
-			// if $file_upload_error_messages is still empty
-			if(empty($file_upload_error_messages)){
-				// it means there are no errors, so try to upload the file
-				if(move_uploaded_file($_FILES["image"]["tmp_name"], $target_file)){
-					// it means photo was uploaded
-				}else{
-					$result_message.="<div class='alert alert-danger'>";
-						$result_message.="<div>Unable to upload photo.</div>";
-						$result_message.="<div>Update the record to upload photo.</div>";
-					$result_message.="</div>";
-				}
-			}
-			 
-			// if $file_upload_error_messages is NOT empty
-			else{
-				// it means there are some errors, so show them to user
-				$result_message.="<div class='alert alert-danger'>";
-					$result_message.="{$file_upload_error_messages}";
-					$result_message.="<div>Update the record to upload photo.</div>";
-				$result_message.="</div>";
-			}
-	 
-		}
-	 
-		return $result_message;
-	}
 }
 ?>

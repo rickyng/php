@@ -21,6 +21,19 @@
                 <li <?php echo $page_title=="Index" ? "class='active'" : ""; ?>>
                     <a href="<?php echo $home_url; ?>">Home</a>
                 </li>
+                <li <?php echo strpos($page_title, "Product")!==false ? "class='active'" : ""; ?>>
+                    <a href="products.php">Products</a>
+                </li>
+ 
+                <li <?php echo $page_title=="Cart" ? "class='active'" : ""; ?> >
+                <a href="cart.php">
+                    <?php
+                    // count products in cart
+                    $cart_count=sizeof($cart_item->readBy('user_id', '1'));
+                    ?>
+                    Cart <span class="badge" id="comparison-count"><?php echo $cart_count; ?></span>
+                </a>
+                </li>
             </ul>
  
             <?php
