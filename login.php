@@ -5,6 +5,22 @@ include_once "config/core.php";
 // set page title
 $page_title = "Login";
  
+// connect to database
+include 'config/database.php';
+// include objects
+include_once "objects/product.php";
+include_once "objects/product_image.php";
+include_once "objects/cart_item.php";
+
+// get database connection
+$database = new Database();
+$db = $database->getConnection();
+ 
+// initialize objects
+$product = new Product($db);
+$product_image = new ProductImage($db);
+$cart_item = new CartItem($db);
+
 // include login checker
 $require_login=false;
 include_once "login_checker.php";
@@ -23,10 +39,10 @@ if($_POST){
     // get database connection
     $database = new Database();
     $db = $database->getConnection();
-    
+
     // initialize objects
     $user = new User($db);
-    
+
     
     // check if email exists, also get user details using this emailExists() method
     $search = array();
