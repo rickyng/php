@@ -76,14 +76,15 @@ class db_object{
 
 	public function readAll($from_record_num, $records_per_page){
 		
-		
-
+	
 		$comma_separated = implode(",", $this->get_all_column());
 
 		$items = array();
 		$query = "SELECT " . $comma_separated. " FROM " . $this->table_name . 
 			" ORDER BY ". $this->get_primary_key() . " ASC LIMIT {$from_record_num}, {$records_per_page}";
 		$stmt = $this->conn->prepare( $query );
+
+		echo $query."<br>";
 		$stmt->execute();
 		while ($row = $stmt->fetch(PDO::FETCH_ASSOC)){
 			$local = array();
@@ -175,7 +176,6 @@ class db_object{
 	// read db_objects by search term
 	public function search($search_term, $from_record_num, $records_per_page){
 	 
-		$order_by = 'Collection';
 		$comma_separated = implode(",", $this->table_column);
 		$where= array();
 		foreach ( $this->table_column as $key => $value)
@@ -185,7 +185,7 @@ class db_object{
 		$where_clause = implode(" OR ", $where);
 		$query = "SELECT " . $comma_separated. " FROM " . $this->table_name . 
 			" WHERE " . $where_clause .
-			" ORDER BY ". $order_by. " ASC LIMIT {$from_record_num}, {$records_per_page}";
+			" ORDER BY ". $this->get_primary_key() . " ASC LIMIT {$from_record_num}, {$records_per_page}";
 		
 		// prepare query statement
 		$stmt = $this->conn->prepare( $query );
@@ -208,7 +208,7 @@ class db_object{
 	 
 	public function countAll_BySearch($search_term){
 	 
-		$order_by = 'Collection';
+		
 		$comma_separated = implode(",", $this->table_column);
 		$where= array();
 		foreach ($this->table_column as $key => $value)
@@ -218,7 +218,7 @@ class db_object{
 		$where_clause = implode(" OR ", $where);
 		$query = "SELECT " . $comma_separated. " FROM " . $this->table_name . 
 			" WHERE " . $where_clause .
-			" ORDER BY ". $order_by;
+			" ORDER BY ". $this->get_primary_key();
 		
 		// prepare query statement
 		$stmt = $this->conn->prepare( $query );
