@@ -32,6 +32,13 @@ $(document).ready(function(){
         window.location.href = "update_quantity.php?id=" + id + "&quantity=" + quantity;
         return false;
     });
+
+    // change product image on hover
+    $(document).on('mouseenter', '.product-img-thumb', function(){
+        var data_img_id = $(this).attr('data-img-id');
+        $('.product-img').hide();
+        $('#product-img-'+data_img_id).show();
+    });
 });
 
 
